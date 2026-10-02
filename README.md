@@ -21,6 +21,5 @@ probable root causes, and recommend troubleshooting actions.
 - Git and GitHub
 - Network diagnostic tools
 - LLM integration
-=======
 # NetMind-AI-Network-Troubleshooter
 An LLM-driven AI agent for network fault diagnosis, root-cause analysis, and troubleshooting recommendations.

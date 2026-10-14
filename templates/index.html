@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NetMind — AI Network Troubleshooting Agent</title>
+<style>
+:root {
+  --cyber-950: #030712;
+  --cyber-900: #070b14;
+  --cyber-850: #0a101d;
+  --cyber-800: #0f172a;
+  --cyber-cyan: #00f2fe;
+  --cyber-neon: #38bdf8;
+  --cyber-glow: #4facfe;
+  --border: rgba(56, 189, 248, 0.15);
+  --border-hot: rgba(0, 242, 254, 0.45);
+  --text: #e2e8f0;
+  --text-muted: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+  margin: 0;
+  padding: 56px 32px;
+  min-height: 100vh;
+  background: var(--cyber-950);
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(30, 41, 59, 0.8) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.35;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black 20%, transparent 80%);
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 242, 254, 0.12), transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+.status-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--cyber-neon);
+  margin-bottom: 12px;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cyber-cyan);
+  box-shadow: 0 0 8px var(--cyber-cyan);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.sub {
+  color: var(--text-muted);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  margin-bottom: 36px;
+}
+
+.panel {
+  background: linear-gradient(135deg, rgba(15,23,42,0.75) 0%, rgba(7,11,20,0.9) 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel:hover {
+  border-color: var(--border-hot);
+  box-shadow:
+    0 0 25px -5px rgba(0, 242, 254, 0.18),
+    inset 0 0 15px -3px rgba(56, 189, 248, 0.08);
+}
+
+textarea {
+  width: 100%;
+  min-height: 88px;
+  background: rgba(3, 7, 18, 0.6);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-size: 15px;
+  font-family: 'Inter', system-ui, sans-serif;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--cyber-cyan);
+  box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.1);
+}
+
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+button {
+  margin-top: 12px;
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #030712;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 0 24px -4px rgba(0, 242, 254, 0.4);
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  box-shadow: 0 0 32px -2px rgba(0, 242, 254, 0.6);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+  box-shadow: none;
+}
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+
+.mode-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.mode-badge.ai {
+  color: var(--cyber-cyan);
+  background: rgba(0, 242, 254, 0.06);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+.mode-badge.offline {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.06);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.step {
+  background: rgba(10, 16, 29, 0.7);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--cyber-cyan);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.step .tool {
+  color: var(--cyber-cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.step .reason {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+pre {
+  background: #020617;
+  border: 1px solid rgba(0, 242, 254, 0.08);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  overflow-x: auto;
+  margin: 10px 0 0;
+}
+
+.final {
+  background: linear-gradient(135deg, rgba(5, 46, 22, 0.6) 0%, rgba(7, 11, 20, 0.9) 100%);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  border-left: 2px solid #4ade80;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.final h3 {
+  margin: 0 0 12px;
+  color: #4ade80;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.final ul {
+  margin: 12px 0 0 20px;
+  padding: 0;
+  line-height: 1.9;
+}
+
+.final li {
+  color: #bbf7d0;
+  margin-bottom: 6px;
+}
+
+.final li::marker {
+  color: #4ade80;
+}
+
+.error {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-left: 2px solid #f87171;
+  border-radius: 10px;
+  padding: 18px 20px;
+  color: #fca5a5;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cyber-950);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+@media (max-width: 900px) {
+  body {
+    padding: 32px 16px;
+  }
+
+  h1 {
+    font-size: 36px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="status-label"><span class="dot"></span>[ AI NETWORK TROUBLESHOOTING AGENT ]</div>
+<h1>NetMind</h1>
+<div class="sub">AI-Powered Network Troubleshooting Agent</div>
+
+<div class="panel">
+  <textarea id="problem" placeholder="Describe the problem, e.g. 'I can't open any websites but Wi-Fi shows connected.'"></textarea>
+  <button id="runBtn" onclick="runAgent()">Investigate</button>
+</div>
+
+<div id="output"></div>
+
+</div>
+
+<script>
+async function runAgent() {
+  const btn = document.getElementById("runBtn");
+  const out = document.getElementById("output");
+  const problem = document.getElementById("problem").value.trim();
+
+  if (!problem) return;
+
+  btn.disabled = true;
+  btn.textContent = "Investigating...";
+  out.innerHTML = '<div class="panel">Running agent...</div>';
+
+  try {
+    const res = await fetch("/diagnose", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ problem })
+    });
+    const data = await res.json();
+    render(data);
+  } catch (e) {
+    out.innerHTML = '<div class="panel error">Error: ' + e.message + '</div>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Investigate";
+  }
+}
+
+function render(data) {
+  const out = document.getElementById("output");
+  out.innerHTML = "";
+
+  if (data.error) {
+    out.innerHTML = '<div class="panel error">' + data.error + '</div>';
+    return;
+  }
+
+  // Mode badge
+  const modeBadge = document.createElement("div");
+  modeBadge.className = "mode-badge " + (data.mode === "gemini" ? "ai" : "offline");
+  modeBadge.textContent = data.mode === "gemini"
+    ? "AI MODE \u00b7 GEMINI"
+    : "OFFLINE MODE \u00b7 RULE ENGINE";
+  out.appendChild(modeBadge);
+
+  // Tool call trace
+  (data.trace || []).forEach(step => {
+    const div = document.createElement("div");
+    div.className = "step";
+    div.innerHTML =
+      '<div>Step ' + step.step + ': <span class="tool">' +
+      step.tool + '</span></div>' +
+      '<div class="reason">' + (step.reason || "") + '</div>' +
+      '<pre>' + JSON.stringify(step.result, null, 2) + '</pre>';
+    out.appendChild(div);
+  });
+
+  // Final diagnosis
+  const final = document.createElement("div");
+  final.className = "panel final";
+  let steps = "";
+  (data.fix_steps || []).forEach(s => { steps += "<li>" + s + "</li>"; });
+  final.innerHTML =
+    "<h3>Root Cause: " + (data.root_cause || "\u2014") + "</h3>" +
+    "<div><strong>Evidence:</strong> " + (data.evidence || "\u2014") + "</div>" +
+    "<div style='margin-top:10px'><strong>Recommended Fix:</strong></div>" +
+    "<ul>" + steps + "</ul>";
+  out.appendChild(final);
+}
+</script>
+
+</body>
+</html>

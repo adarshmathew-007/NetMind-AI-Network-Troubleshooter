@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from agent import run_agent
-from llm import call_llm
+from llm_ollama import call_llm
 
 print("[NetMind] Flask starting. Gemini will be tested lazily on first request.", flush=True)
 

@@ -65,7 +65,7 @@ def run_agent(problem, call_llm, max_steps=5):
 
             if decision.get("action") == "final":
                 decision["trace"] = trace
-                decision["mode"] = "gemini"
+                decision["mode"] = "ollama"
                 return decision
 
             tool_name = decision.get("tool")

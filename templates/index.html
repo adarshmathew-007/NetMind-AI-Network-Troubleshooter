@@ -377,9 +377,9 @@ function render(data) {
 
   // Mode badge
   const modeBadge = document.createElement("div");
-  modeBadge.className = "mode-badge " + (data.mode === "gemini" ? "ai" : "offline");
-  modeBadge.textContent = data.mode === "gemini"
-    ? "AI MODE \u00b7 GEMINI"
+  modeBadge.className = "mode-badge " + (data.mode === "ollama" ? "ai" : "offline");
+  modeBadge.textContent = data.mode === "ollama"
+    ? "AI MODE \u00b7 OLLAMA"
     : "OFFLINE MODE \u00b7 RULE ENGINE";
   out.appendChild(modeBadge);
 
